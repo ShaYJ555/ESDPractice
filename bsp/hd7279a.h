@@ -21,5 +21,6 @@
 void hd7279a_init(void);
 void hd7279a_write_cmd(uint8_t cmd,uint8_t dat);
 uint8_t hd7279a_read_data(uint8_t cmd);
+void hd7279a_write_byte(uint8_t dat);
 
 #endif // __HD7279A_H

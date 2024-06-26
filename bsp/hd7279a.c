@@ -1,5 +1,5 @@
 #include "hd7279a.h"
-#include "REG52.H"
+#include "main.h"
 
 sbit HD7279A_CS   = P1^4; 
 sbit HD7279A_CLK  = P1^5; 
@@ -9,16 +9,15 @@ sbit HD7279A_KEY  = P1^3;
 static void Delay10us(void);
 static void Delay15us(void);		
 static void Delay1000ms(void);
-static void hd7279a_write_byte(uint8_t dat);
 static uint8_t hd7279a_read_byte(void);
 
 
 void hd7279a_init(void)
 {
-	hd7279c_write_cmd(CMD_RESET);
-	hd7279c_write_cmd(CMD_TEST);
+	hd7279a_write_byte(CMD_RESET);
+	hd7279a_write_byte(CMD_TEST);
     Delay1000ms();
-	hd7279c_write_cmd(CMD_RESET);
+	hd7279a_write_byte(CMD_RESET);
 }
 
 void hd7279a_write_cmd(uint8_t cmd,uint8_t dat)
@@ -33,11 +32,12 @@ uint8_t hd7279a_read_data(uint8_t cmd)
     return hd7279a_read_byte();
 }
 
-static void hd7279a_write_byte(uint8_t dat)
+void hd7279a_write_byte(uint8_t dat)
 {
+    uint8_t i = 0;
     HD7279A_CS = 0;
     Delay15us();
-    for (uint8_t i=0;i<8;i++)
+    for (i = 0;i<8;i++)
     {
         if (dat&0x80)
         {
@@ -58,10 +58,10 @@ static void hd7279a_write_byte(uint8_t dat)
 
 static uint8_t hd7279a_read_byte(void)
 {
-    uint8_t dat;
+    uint8_t dat = 0, i = 0;
     HD7279A_DATA = 1; // ÉèÖÃÎªÊäÈë×´Ì¬
     Delay15us();
-    for (uint8_t = 0;i < 8; i++)
+    for (i = 0;i < 8; i++)
     {
         HD7279A_CLK = 1;
         Delay10us();

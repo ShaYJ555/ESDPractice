@@ -1,6 +1,9 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
+#include "REG52.H"
+#include "INTRINS.H"
+
 typedef unsigned char uint8_t;
 typedef unsigned int uint16_t;
 typedef unsigned long uint32_t;
