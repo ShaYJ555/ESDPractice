@@ -1,5 +1,6 @@
 #ifndef __BSP_KEY_H
 #define __BSP_KEY_H
+#include "main.h"
 
 #define KEY_UP       0x59
 #define KEY_DOWN     0x60
@@ -18,6 +19,5 @@ typedef struct
 
 
 uint8_t key_scan(void);
-uint8_t key_handler(void);
 
 #endif // __BSP_KEY_H

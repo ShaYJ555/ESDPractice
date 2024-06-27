@@ -14,8 +14,7 @@ void Timer0_Init(void)		//10毫秒@11.0592MHz
 	TR0 = 1;				//定时器0开始计时
 }
 
-void Timer0_Proc(void) interrupt TIM0_VECTOR
+void Timer0_Handler(void) interrupt TIM0_VECTOR
 {
-	key_handler();
 
 }

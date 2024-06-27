@@ -1,5 +1,4 @@
 #include "hd7279a.h"
-#include "main.h"
 
 sbit HD7279A_CS   = P1^4; 
 sbit HD7279A_CLK  = P1^5; 

@@ -1,5 +1,4 @@
 #include "bsp_sensor.h"
-#include "main.h"
 
 sbit IO_18B20 = P1^3;
 
@@ -88,15 +87,14 @@ static uint8_t ds18b20_start(void)
     return ~ack;                    // 1表示正常，0表示异常
 }
 
-void ds18b20_read_temperature(float *temperature)
+void ds18b20_read_temperature(int16_t *temperature)
 {
     uint8_t ack = 0;
-    int16_t temp = 0;
     uint8_t LSB = 0,MSB = 0;       // 存储温度数据
 
     if(!ds18b20_start())
     {
-        *temperature = 0.0;
+        *temperature = 0;
         return;
     }
     
@@ -107,15 +105,15 @@ void ds18b20_read_temperature(float *temperature)
         ds18b20_write_byte(0xBE);   // 读取数据
         LSB = ds18b20_read_byte();
         MSB = ds18b20_read_byte();
-        temp = ((int16_t)MSB<<8) | LSB;
-        if(temp>0)
-        {
-            *temperature = (float)(temp & 0x0F)/16 + (float)((temp>>4)&0x7F);
-        }
-        else
-        {
-            *temperature = -((float)(temp & 0x0F)/16 + (float)((temp>>4)&0x7F));
-        }
+        *temperature = (((int16_t)MSB<<8) | LSB) & 0x87FF;
+        // if(temp>0)
+        // {
+        //     *temperature = (float)(temp & 0x0F)/16 + (float)((temp>>4)&0x7F);
+        // }
+        // else
+        // {
+        //     *temperature = -((float)(temp & 0x0F)/16 + (float)((temp>>4)&0x7F));
+        // }
     }
 }
 

@@ -4,15 +4,22 @@
 
 typedef struct
 {
-    float kp;
-    float ki;
-    float kd;
-    float error;
-    float error_last;
-    float error_sum;
-    float target;
-    float output;
+    int16_t kp;
+    int16_t ki;
+    int16_t kd;
+    int16_t error;
+    int16_t error_last;
+    int16_t error_last_last;
+    int16_t error_sum;
+    int16_t target;
+    int16_t output;
 }PID_t;
+
+#define PID_LIMIT_MIN    0
+#define PID_LIMIT_MAX    100
+
+#define T_up      60 
+#define T_down    20
 
 
 #endif // __ALGORITHM_H
