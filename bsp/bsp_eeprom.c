@@ -161,20 +161,6 @@ void eeprom_read_bytes(uint8_t addr, uint8_t *dat, uint8_t len)
     }
 }
 
-/*
-
-    unsigned char Page=0,WordAddress=0,DeviceAddress=0x50;
-    Page=ReadAddr/AT24CXX_Page_Size;
-    WordAddress=(ReadAddr%AT24CXX_Page_Size) & 0x0F;
-    DeviceAddress |= (((Page<<1) & 0xE0)>>4);//High 3 bits
-    WordAddress |= (Page & 0x0F)<<4;//Low 4 bits
-    while(NumToRead)
-    {
-        *pBuffer++=AT24CXX_ReadOneByte(ReadAddr++);
-        NumToRead--;
-    }
-*/
-
 static void Delay10us()		//@11.0592MHz
 {
 	unsigned char i;

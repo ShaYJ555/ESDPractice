@@ -13,6 +13,7 @@
 
 
 void display_blink(uint8_t digits);
+void display_clear(void);
 void display_left_loop(void);
 void display_right_loop(void);
 void display_digit(uint8_t digit,uint8_t dat,uint8_t display_point);

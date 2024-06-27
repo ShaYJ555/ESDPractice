@@ -1,7 +1,9 @@
 #include "interrupt.h"
+#include "bsp_key.h"
 
 sfr AUXR =0x8E;
 
+// 自动重装载
 void Timer0_Init(void)		//10毫秒@11.0592MHz
 {
 	AUXR &= 0x7F;			//定时器时钟12T模式
@@ -14,6 +16,6 @@ void Timer0_Init(void)		//10毫秒@11.0592MHz
 
 void Timer0_Proc(void) interrupt TIM0_VECTOR
 {
-
+	key_handler();
 
 }

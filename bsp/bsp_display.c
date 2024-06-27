@@ -40,6 +40,11 @@ void display_digit(uint8_t digit,uint8_t dat,uint8_t display_point)
     }
 }
 
+void display_clear(void)
+{
+    hd7279a_write_byte(CMD_RESET);
+}
+
 void display_blink(uint8_t digits)
 {
     hd7279a_write_cmd(BLINKCTL,digits);
