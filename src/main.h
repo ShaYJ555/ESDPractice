@@ -18,4 +18,6 @@ typedef signed long int32_t;
 #define TIM1_VECTOR 3  /* 0x1b timer 1 */
 #define UART0_VECTOR 4 /* 0x23 serial port 0 */
 
+sbit LED   = P2^1; 
+
 #endif // __MAIN_H

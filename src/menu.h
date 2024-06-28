@@ -16,6 +16,8 @@ extern code Menu_t menu_list[10];
 
 // 空菜单编号
 #define NULL_MENU_ID          255
+
+/* 一级菜单 */
 // 温度检测菜单编号
 #define TEMP_MENU_ID          0
 // 电机测试菜单编号
@@ -24,12 +26,20 @@ extern code Menu_t menu_list[10];
 #define MOTOR_SPEED_MENU_ID   2
 // 参数设置惨淡编号
 #define PARAM_SET_MENU_ID     3
+
+/* 二级菜单 */
 // 温度参数菜单编号
 #define TEMP_PARAM_MENU_ID    4
 // 电机测试工艺菜单编号
-#define MOTOR_TEST_MENU_ID    5
+#define MOTOR_SELECT_MENU_ID  5
 // 电机运行菜单编号
 #define MOTOR_RUN_MENU_ID     6
+
+
 // 电机调速参数菜单编号
 #define MOTOR_SPEED_PARAM_MENU_ID     7
+
+void menu_init(void);
+void TEMP_PARAM_MENU(void);
+void MOTOR_SELECT_MENU(void);
 #endif  // __MENU_H__

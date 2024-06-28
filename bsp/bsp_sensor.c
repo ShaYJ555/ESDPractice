@@ -90,10 +90,10 @@ void ds18b20_read_temperature_cmd(void)
     ds18b20_write_byte(0xBE);    
 }
 
-void ds18b20_read_temperature(int16_t *dat)
+void ds18b20_read_temperature(uint16_t *dat)
 {
-    int16_t temp = 0;
-    uint8_t MSB = 0,LSB = 0;
+    uint16_t temp = 0;
+    uint8_t MSB = 0, LSB = 0;
     ds18b20_convert_temperature_cmd();
     ds18b20_read_temperature_cmd();
     LSB = ds18b20_read_byte();
@@ -103,7 +103,7 @@ void ds18b20_read_temperature(int16_t *dat)
         // 温度为负数，错误
         *dat = 0;
     }
-    *dat = (int16_t)(MSB&0x0f)<<8 | (LSB);
+    *dat = (uint16_t)(MSB&0x0f)<<8 | (LSB);
 }
 
 
