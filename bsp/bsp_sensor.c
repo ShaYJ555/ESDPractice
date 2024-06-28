@@ -1,154 +1,137 @@
 #include "bsp_sensor.h"
 
-sbit IO_18B20 = P1^3;
+sbit IO_DS18B20 = P1^3;
 
-static void Delay500us(void);
-static void Delay60us(void);
-static void Delay2us(void);
-static uint8_t ds18b20_get_ack()
+void Delay500us();
+void Delay1ms();
+void Delay60us();
+
+
+
+uint8_t ds18b20_reset()
 {
-    uint8_t ack = 0;
-
-    EA = 0;                 // 禁止总中断
-
-    IO_18B20 = 0;           // 产生复位脉冲
+    uint8_t cnt = 0;
+    IO_DS18B20 = 0;
     Delay500us();
-    IO_18B20 = 1;
-    Delay60us();
-    ack = IO_18B20;
-    while (!IO_18B20);      // 等待结束脉冲
-
-    EA = 1;                 // 允许总中断
-    
-    return ack;
+    IO_DS18B20 = 1;
+    while (IO_DS18B20)
+    {
+        cnt++;
+        if(cnt>5)
+        {
+            return 0;
+        }
+        Delay1ms();
+    }
+    return 1;    // 初始化成功
 }
 
-static void ds18b20_write_byte(uint8_t dat)
+
+
+void ds18b20_write_byte(uint8_t dat)
 {
-    uint8_t mask = 0;
-
-    EA = 0;                 // 禁止总中断
-
-    for (mask = 0x01; mask != 0; mask << 1)
+    uint8_t i;
+    for(i=0;i<8;i++)
     {
-        IO_18B20 = 0;       // 产生 2us 低电平脉冲
-        Delay2us();
-        if(mask&dat)
+        IO_DS18B20 = 0;
+        _nop_();
+        IO_DS18B20 = dat & 0x01;
+        Delay60us();
+        IO_DS18B20 = 1;
+        dat >>= 1;
+    }
+}
+
+void ds18b20_init()
+{
+    ds18b20_reset();
+    ds18b20_write_byte(0xCC);
+    ds18b20_write_byte(0x4E);
+    ds18b20_write_byte(0x20);
+    ds18b20_write_byte(0x00);
+    ds18b20_write_byte(0x7F);   
+    ds18b20_reset();
+}
+
+uint8_t ds18b20_read_byte()
+{
+    uint8_t i,dat=0;
+    for (i = 8; i > 0; i--)
+    {
+        IO_DS18B20 = 0;
+        _nop_();
+        dat >>= 1;
+        IO_DS18B20 = 1;
+        _nop_();
+        _nop_();
+        _nop_();
+        if(IO_DS18B20)
         {
-            IO_18B20 = 1;
-        }
-        else
-        {
-            IO_18B20 = 0;
+            dat |= (0x80);
         }
         Delay60us();
-        IO_18B20 = 1;
     }
-    
-    EA = 1;                 // 允许总中断
+    return dat;
 }
 
-static uint8_t ds18b20_read_byte(void)
+void ds18b20_convert_temperature_cmd(void)
 {
-    uint8_t dat = 0;
-    uint8_t mask = 0;
-
-    EA = 0;                 // 禁止总中断
-    for (mask = 0x01; mask != 0; mask << 1)
-    {
-        IO_18B20 = 0;       // 产生 2us 低电平脉冲
-        Delay2us();
-        IO_18B20 = 1;
-        Delay2us();
-        if(IO_18B20)        // 读取数据
-        {
-            dat |= mask;
-        }
-        else
-        {
-            dat &= ~mask;
-        }
-    }
-
-    EA = 1;                 // 允许总中断
-    
-    return dat;        
+    ds18b20_reset();
+    Delay1ms();
+    ds18b20_write_byte(0xCC);
+    ds18b20_write_byte(0x44);
 }
 
-static uint8_t ds18b20_start(void)
+void ds18b20_read_temperature_cmd(void)
 {
-    uint8_t ack = 0;
-    ack = ds18b20_get_ack();       // 获取总线状态
-    if(ack == 0)
-    {
-        ds18b20_write_byte(0xCC);   // 跳过ROM
-        ds18b20_write_byte(0x44);   // 启动温度转换
-    }
-    return ~ack;                    // 1表示正常，0表示异常
+    ds18b20_reset();
+    Delay1ms();
+    ds18b20_write_byte(0xCC);
+    ds18b20_write_byte(0xBE);    
 }
 
-void ds18b20_read_temperature(int16_t *temperature)
+void ds18b20_read_temperature(int16_t *dat)
 {
-    uint8_t ack = 0;
-    uint8_t LSB = 0,MSB = 0;       // 存储温度数据
-
-    if(!ds18b20_start())
+    int16_t temp = 0;
+    uint8_t MSB = 0,LSB = 0;
+    ds18b20_convert_temperature_cmd();
+    ds18b20_read_temperature_cmd();
+    LSB = ds18b20_read_byte();
+    MSB = ds18b20_read_byte();
+    if(MSB&0xf0)
     {
-        *temperature = 0;
-        return;
+        // 温度为负数，错误
+        *dat = 0;
     }
-    
-    ack = ds18b20_get_ack();       // 获取总线状态
-    if(ack == 0)
-    {
-        ds18b20_write_byte(0xCC);   // 跳过ROM
-        ds18b20_write_byte(0xBE);   // 读取数据
-        LSB = ds18b20_read_byte();
-        MSB = ds18b20_read_byte();
-        *temperature = (((int16_t)MSB<<8) | LSB) & 0x87FF;
-        // if(temp>0)
-        // {
-        //     *temperature = (float)(temp & 0x0F)/16 + (float)((temp>>4)&0x7F);
-        // }
-        // else
-        // {
-        //     *temperature = -((float)(temp & 0x0F)/16 + (float)((temp>>4)&0x7F));
-        // }
-    }
+    *dat = (int16_t)(MSB&0x0f)<<8 | (LSB);
 }
 
-static void Delay500us()		//@11.0592MHz
+
+void Delay60us()		//@11.0592MHz
+{
+	unsigned char i;
+
+	i = 25;
+	while (--i);
+}
+void Delay1ms()		//@11.0592MHz
 {
 	unsigned char i, j;
 
 	_nop_();
-	_nop_();
-	i = 6;
-	j = 93;
+	i = 2;
+	j = 199;
 	do
 	{
 		while (--j);
 	} while (--i);
 }
 
-static void Delay60us()		//@11.0592MHz
+void Delay500us()		//@11.0592MHz
 {
 	unsigned char i;
 
 	_nop_();
-	_nop_();
-	i = 163;
+	i = 227;
 	while (--i);
 }
-
-static void Delay2us()		//@11.0592MHz
-{
-	unsigned char i;
-
-	i = 3;
-	while (--i);
-}
-
-
-
-

@@ -28,7 +28,19 @@
         "commandLine": "python ./tools/stcflash.py -p ${port} \"${hexFile}\"",
         "eraseChipCommand": ""
       },
-      "uploadConfigMap": {},
+      "uploadConfigMap": {
+        "Custom": {
+          "bin": "",
+          "commandLine": "python ./tools/stcflash.py -p ${port} \"${hexFile}\"",
+          "eraseChipCommand": ""
+        },
+        "stcgal": {
+          "bin": "",
+          "eepromImgPath": "null",
+          "extraOptions": "",
+          "options": ".eide/stc.flash.json"
+        }
+      },
       "custom_dep": {
         "name": "default",
         "incList": [

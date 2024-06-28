@@ -2,8 +2,8 @@
 
 sbit HD7279A_CS   = P1^4; 
 sbit HD7279A_CLK  = P1^5; 
-sbit HD7279A_DATA = P1^2; 
-sbit HD7279A_KEY  = P1^3; 
+sbit HD7279A_DATA = P1^7; 
+sbit HD7279A_KEY  = P1^6; 
 
 static void Delay10us(void);
 static void Delay15us(void);		
@@ -14,9 +14,9 @@ static uint8_t hd7279a_read_byte(void);
 void hd7279a_init(void)
 {
 	hd7279a_write_byte(CMD_RESET);
-	hd7279a_write_byte(CMD_TEST);
-    Delay1000ms();
-	hd7279a_write_byte(CMD_RESET);
+	// hd7279a_write_byte(CMD_TEST);
+    // Delay1000ms();
+	// hd7279a_write_byte(CMD_RESET);
 }
 
 void hd7279a_write_cmd(uint8_t cmd,uint8_t dat)

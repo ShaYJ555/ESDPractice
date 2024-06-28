@@ -23,7 +23,9 @@
             "*.cxx": "cpp",
             "*.cc": "cpp",
             "REG52.H": "cpp",
-            "REG51.H": "cpp"
+            "REG51.H": "cpp",
+            "STDIO.H": "cpp",
+            "INTRINS.H": "cpp"
         },
         "C_Cpp.default.configurationProvider": "cl.eide",
         "[yaml]": {

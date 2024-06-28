@@ -11,6 +11,7 @@
 #define DIGIT_6       0x40
 #define DIGIT_7       0x80
 
+extern uint8_t digit_array[10];
 
 void display_blink(uint8_t digits);
 void display_clear(void);

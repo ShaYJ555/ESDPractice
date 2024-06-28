@@ -2,10 +2,10 @@
 #define __BSP_KEY_H
 #include "main.h"
 
-#define KEY_UP       0x59
-#define KEY_DOWN     0x60
-#define KEY_BACK     0x63
-#define KEY_ENTER    0x56
+#define KEY_UP       58
+#define KEY_DOWN     59
+#define KEY_BACK     57
+#define KEY_ENTER    56
 
 typedef struct
 {

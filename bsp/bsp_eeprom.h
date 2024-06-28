@@ -2,7 +2,7 @@
 #define __BSP_EEPROM_H
 #include "main.h"
 
-#define EEPROM_ADDR 0xA6
+#define EEPROM_ADDR 0xA0
 #define EERPOM_SIZE 2048
 #define EEPROM_PAGE 16
 

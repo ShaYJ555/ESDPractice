@@ -4,5 +4,5 @@
 
 
 void console_init(void);
-
+void sendByte(unsigned char dat);
 #endif  // __BSP_CONSOLE_H

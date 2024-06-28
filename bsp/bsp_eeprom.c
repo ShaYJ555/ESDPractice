@@ -120,9 +120,9 @@ static uint8_t IIC_read_byte(uint8_t ack)
 static void eeprom_write_byte(uint8_t addr, uint8_t dat)
 {
     IIC_start();
-    IIC_write_byte(EEPROM_ADDR);  // ·¢ËÍĞ´ÃüÁî
+    IIC_write_byte(EEPROM_ADDR|((addr/256)<<1));  // ·¢ËÍĞ´ÃüÁî
     IIC_wait_ack();
-    IIC_write_byte(addr);
+    IIC_write_byte(addr%256);
     IIC_wait_ack();
     IIC_write_byte(dat);
     IIC_wait_ack();
@@ -133,12 +133,12 @@ static uint8_t eeprom_read_byte(uint8_t addr)
 {
     uint8_t dat = 0;
     IIC_start();
-    IIC_write_byte(EEPROM_ADDR);
+    IIC_write_byte(EEPROM_ADDR|((addr/256)<<1));
     IIC_wait_ack();
-    IIC_write_byte(addr);
+    IIC_write_byte(addr%256);
     IIC_wait_ack();
     IIC_start();
-    IIC_write_byte(EEPROM_ADDR|0x01);
+    IIC_write_byte(EEPROM_ADDR|((addr/256)<<1)|0x01);
     IIC_wait_ack();
     dat = IIC_read_byte(0);
     IIC_stop();
@@ -165,8 +165,7 @@ static void Delay10us()		//@11.0592MHz
 {
 	unsigned char i;
 
-	_nop_();
-	i = 25;
+	i = 2;
 	while (--i);
 }
 
@@ -174,8 +173,8 @@ static void Delay10ms()		//@11.0592MHz
 {
 	unsigned char i, j;
 
-	i = 108;
-	j = 145;
+	i = 18;
+	j = 235;
 	do
 	{
 		while (--j);
