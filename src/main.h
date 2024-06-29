@@ -19,5 +19,6 @@ typedef signed long int32_t;
 #define UART0_VECTOR 4 /* 0x23 serial port 0 */
 
 sbit LED   = P2^1; 
+sbit MOTOR = P1^2;
 
 #endif // __MAIN_H

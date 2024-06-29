@@ -9,7 +9,7 @@
 #include "interrupt.h"
 #include "algorithm.h"
 
-void Delay120ms(void);
+void Delay10ms(void);
 
 uint16_t temperature;
 uint8_t last_menu_index = 0;
@@ -21,11 +21,11 @@ uint8_t motor_test[11] = {0,70,71,72,73,74,75,76,77,78,79};
 
 void main()
 {
-    Timer0_Init();
     hd7279a_init();
     ds18b20_init();
     menu_init();
     ds18b20_read_temperature(&temperature);
+    Timer0_Init();
     while (1)
     {
         EA = 0;
@@ -60,11 +60,13 @@ void main()
         }
         if(now_menu_index != last_menu_index)
         {
+            EA = 0;
             display_clear();
             menu_list[now_menu_index].current_menu();
             last_menu_index = now_menu_index;
+            EA = 1;
         }
-        Delay120ms();
+        Delay10ms();
         if(now_menu_index == TEMP_PARAM_MENU_ID)
 		{
 			EA = 0;
@@ -104,12 +106,12 @@ void main()
     }
 }
 
-void Delay120ms()		//@11.0592MHz
+void Delay10ms()		//@11.0592MHz
 {
 	unsigned char i, j;
 
-	i = 216;
-	j = 37;
+	i = 18;
+	j = 235;
 	do
 	{
 		while (--j);
