@@ -2,6 +2,8 @@
 
 idata PID_t pid_temperature = {0};
 
+uint8_t high_temperature = 30;
+uint8_t low_temperature = 26;
 
 void pid_init()
 {
@@ -34,20 +36,21 @@ void pid_calculate(float temperature)
     }
 }
 
-void temperature_to_pwm(int16_t *temperature, uint8_t *pwm)
+void temperature_to_pwm(uint16_t temperature, uint8_t *pwm)
 {
+    float temp = 0;
     /* 计算当前温度 */
-    float temp = *temperature > 0 ? (float)*temperature/16 : -(float)(*temperature&0x7FFF)/16;
-    if (temp > T_up)
+    temp = (temperature * 0.0625);
+    if (temp >= (float)high_temperature)
     {
         *pwm = 100;
     }
-    else if (temp < T_down)
+    else if (temp <= (float)low_temperature)
     {
         *pwm = 0;
     }
     else
     {
-        *pwm = (uint8_t)(((temp - T_down) / (T_up - T_down)) * 50 + 50);
+        *pwm = (uint8_t)(((float)temp - low_temperature) / ((float)high_temperature - low_temperature) * 50 + 50);
     }
 }

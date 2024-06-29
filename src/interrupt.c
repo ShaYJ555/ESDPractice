@@ -5,7 +5,7 @@
 
 sfr AUXR =0x8E;
 
-uint8_t duty = 40;
+uint8_t duty = 0;
 
 
 // 自动重装载

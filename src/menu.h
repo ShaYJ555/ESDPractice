@@ -12,7 +12,7 @@ typedef struct
     void (*current_menu)();
 }Menu_t;
 
-extern code Menu_t menu_list[10];
+extern code Menu_t menu_list[16];
 
 // 空菜单编号
 #define NULL_MENU_ID          255
@@ -32,14 +32,37 @@ extern code Menu_t menu_list[10];
 #define TEMP_PARAM_MENU_ID    4
 // 电机测试工艺菜单编号
 #define MOTOR_SELECT_MENU_ID  5
-// 电机运行菜单编号
-#define MOTOR_RUN_MENU_ID     6
-
-
 // 电机调速参数菜单编号
-#define MOTOR_SPEED_PARAM_MENU_ID     7
+#define MOTOR_SPEED_PARAM_MENU_ID  6
+// 电机测速菜单编号
+#define PA_RUN_MENU_ID  7
+// 电机调速菜单编号
+#define PA_CON_MENU_ID  8
+
+
+
+// 电机运行菜单编号
+#define MOTOR_RUN_MENU_ID     9
+// 电机测速选择菜单编号
+#define PA_RUN_SELECT_MENU_ID 10
+// 电机调速选择菜单编号
+#define PA_CON_SELECT_B_MENU_ID 11
+#define PA_CON_SELECT_F_MENU_ID 12
+
+
+// 电机测速设置菜单编号
+#define PA_RUN_SET_MENU_ID    13
+// 电机调速设置菜单编号
+#define PA_CON_SET_B_MENU_ID    14
+#define PA_CON_SET_F_MENU_ID    15
+
 
 void menu_init(void);
 void TEMP_PARAM_MENU(void);
 void MOTOR_SELECT_MENU(void);
+void MOTOR_SPEED_PARAM_MENU(void);
+void PA_RUN_SELECT_MENU(void);
+void PA_RUN_SET_MENU(void);
+void PA_CON_SET_B_MENU(void);
+void PA_CON_SET_F_MENU(void);
 #endif  // __MENU_H__

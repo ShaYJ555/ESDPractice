@@ -18,8 +18,6 @@ typedef struct
 #define PID_LIMIT_MIN    0
 #define PID_LIMIT_MAX    100
 
-#define T_up      60 
-#define T_down    20
-
+void temperature_to_pwm(uint16_t temperature, uint8_t *pwm);
 
 #endif // __ALGORITHM_H
