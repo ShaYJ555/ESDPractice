@@ -3,5 +3,5 @@
 #include "main.h"
 
 void Timer0_Init(void);
-
+void Timer1_Init(void);
 #endif // __INTERRUPT_H__

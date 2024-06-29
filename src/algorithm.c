@@ -1,38 +1,39 @@
 #include "algorithm.h"
 
-idata PID_t pid_temperature = {0};
+// idata PID_t pid_temperature = {0};
 
 uint8_t high_temperature = 30;
 uint8_t low_temperature = 26;
 
-void pid_init()
+void pid_init(PID_t *pid_temperature)
 {
-    pid_temperature.kp = 0;
-    pid_temperature.ki = 0;
-    pid_temperature.kd = 0;
+    pid_temperature->target = 25.0;
+    pid_temperature->kp = 1;
+    pid_temperature->ki = 0;
+    pid_temperature->kd = 0;
 }
 
 /* 增量式PID 控制输出增量 */
-void pid_calculate(float temperature)
+void pid_calculate(uint16_t temperature,PID_t *pid_temperature)
 {
     /* 当前误差 */
-    pid_temperature.error = pid_temperature.target - temperature;
+    pid_temperature->error = (int16_t)(temperature - pid_temperature->target * 16);
 
-    pid_temperature.output += 
-    pid_temperature.kp * (pid_temperature.error - pid_temperature.error_last) + 
-    pid_temperature.ki * pid_temperature.error + 
-    pid_temperature.kd * (pid_temperature.error - 2 * pid_temperature.error_last + pid_temperature.error_last_last);
+    pid_temperature->output += 
+    pid_temperature->kp * (pid_temperature->error - pid_temperature->error_last) + 
+    pid_temperature->ki * pid_temperature->error + 
+    pid_temperature->kd * (pid_temperature->error - 2 * pid_temperature->error_last + pid_temperature->error_last_last);
     
-    pid_temperature.error_last_last = pid_temperature.error_last;
-    pid_temperature.error_last = pid_temperature.error;
+    pid_temperature->error_last_last = pid_temperature->error_last;
+    pid_temperature->error_last = pid_temperature->error;
 
-    if (pid_temperature.output > PID_LIMIT_MAX)
+    if (pid_temperature->output > PID_LIMIT_MAX)
     {
-        pid_temperature.output = PID_LIMIT_MAX;
+        pid_temperature->output = PID_LIMIT_MAX;
     }
-    if (pid_temperature.output < PID_LIMIT_MIN)
+    if (pid_temperature->output < PID_LIMIT_MIN)
     {
-        pid_temperature.output = PID_LIMIT_MIN;
+        pid_temperature->output = PID_LIMIT_MIN;
     }
 }
 

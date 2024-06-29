@@ -18,17 +18,20 @@ uint8_t key_value = 0;
 uint8_t select_index = 1;
 uint8_t pa_select_index = 1;
 uint8_t motor_test[11] = {0,10,20,30,40,50,60,70,80,90,55}; 
+PID_t pid_temperature = {0};
 
 extern uint8_t duty;
 extern uint8_t high_temperature;
 extern uint8_t low_temperature;
 void main()
 {
-    uint8_t temp_value = 0;     // 存放临时变量
+    uint8_t temp_value = 0;         // 存放临时变量
+    float float_temp_value = 0.0;   // 存放临时变量
     hd7279a_init();
     ds18b20_init();
     menu_init();
     ds18b20_read_temperature(&temperature);
+    pid_init(&pid_temperature);
     Timer0_Init();
     while (1)
     {
@@ -71,6 +74,10 @@ void main()
                 {
                     temp_value = high_temperature;
                 }
+                if(now_menu_index == PA_PID_SET_MENU_ID)
+                {
+                    float_temp_value = pid_temperature.target;
+                }                
             }
             break;        
         }
@@ -264,6 +271,51 @@ void main()
                 EA = 1;
                 break;
             }            
+        }
+        if(now_menu_index == PID_CONTROL_MENU_ID)
+        {
+            EA = 0;
+            ds18b20_read_temperature(&temperature);
+            pid_calculate(temperature,&pid_temperature);
+            duty = pid_temperature.output;
+            display_clear();
+            PID_CONTROL_MENU();
+            EA = 1;
+        } 
+        if(now_menu_index == PA_PID_SET_MENU_ID)
+        {
+            switch (key_value)
+            {
+            case KEY_UP:
+                pid_temperature.target += 0.1;
+                if (pid_temperature.target > 99)
+                {
+                    pid_temperature.target = 99;
+                }
+                EA = 0;
+                display_clear();
+                PA_PID_SET_MENU();
+                EA = 1;
+                break;
+            case KEY_DOWN:
+                pid_temperature.target -= 0.1;
+                if(pid_temperature.target < 0)
+                {
+                    pid_temperature.target = 0;
+                }
+                EA = 0;
+                display_clear();
+                PA_PID_SET_MENU();
+                EA = 1;
+                break;
+            case KEY_BACK:
+                pid_temperature.target = float_temp_value;
+                EA = 0;
+                display_clear();
+                PA_PID_SET_MENU();
+                EA = 1;
+                break;
+            }
         }         
     }
 }
