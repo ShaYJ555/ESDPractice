@@ -83,6 +83,10 @@ void main()
             EA = 1;
         }
         Delay10ms();
+        if((now_menu_index != MOTOR_SPEED_PARAM_MENU_ID)&&(now_menu_index != MOTOR_RUN_MENU_ID))
+        {
+            duty = 0;
+        }
         if(now_menu_index == TEMP_PARAM_MENU_ID)
 		{
 			EA = 0;
@@ -99,10 +103,6 @@ void main()
             display_clear();
 			MOTOR_SPEED_PARAM_MENU();
 			EA = 1;            
-        }
-        else
-        {
-            duty = 0;
         }
         if(now_menu_index == MOTOR_SELECT_MENU_ID)
         {
