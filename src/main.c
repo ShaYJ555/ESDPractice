@@ -23,6 +23,16 @@ PID_t pid_temperature = {0};
 extern uint8_t duty;
 extern uint8_t high_temperature;
 extern uint8_t low_temperature;
+
+/*
+EEPROM 参数保存table
+uint8_t high_temperature         0x00 
+uint8_t low_temperature          0x01
+float   pid_temperature.target   0x02   2
+uint8_t motor_test               0x10   11
+*/
+
+
 void main()
 {
     uint8_t temp_value = 0;         // 存放临时变量
@@ -32,6 +42,18 @@ void main()
     menu_init();
     ds18b20_read_temperature(&temperature);
     pid_init(&pid_temperature);
+    
+    // // 第一次烧录，先给EEPROM编程
+    // eeprom_read_bytes(0x01,&low_temperature,1);
+    // eeprom_read_bytes(0x00,&high_temperature,1);
+    // eeprom_read_bytes(0x02,&pid_temperature.target,sizeof(float));
+    // eeprom_read_bytes(0x10,motor_test,11);
+    // 参数读取
+    eeprom_read_bytes(0x01,&low_temperature,1);
+    eeprom_read_bytes(0x00,&high_temperature,1);
+    eeprom_read_bytes(0x02,(uint8_t*)&pid_temperature.target,sizeof(float));
+    eeprom_read_bytes(0x10,motor_test,11);
+
     Timer0_Init();
     while (1)
     {
@@ -62,6 +84,7 @@ void main()
             if (menu_list[last_menu_index].enter != NULL_MENU_ID)
             {
                 now_menu_index = menu_list[last_menu_index].enter;
+                // 进入，获取参数，用作恢复功能
                 if(now_menu_index == PA_RUN_SET_MENU_ID)
                 {
                     temp_value = motor_test[pa_select_index];
@@ -77,7 +100,33 @@ void main()
                 if(now_menu_index == PA_PID_SET_MENU_ID)
                 {
                     float_temp_value = pid_temperature.target;
-                }                
+                }
+                //  退出，保存参数
+                if(last_menu_index == PA_CON_SET_B_MENU_ID)
+                {
+                    EA = 0;
+                    LED = 0;
+                    eeprom_write_bytes(0x01,&low_temperature,1);
+                    EA = 1;
+                } 
+                if(last_menu_index == PA_CON_SET_F_MENU_ID)
+                {
+                    EA = 0;
+                    eeprom_write_bytes(0x00,&high_temperature,1);
+                    EA = 1;
+                }
+                if(last_menu_index == PA_PID_SET_MENU_ID)
+                {
+                    EA = 0;
+                    eeprom_write_bytes(0x02,(uint8_t*)&pid_temperature.target,sizeof(float));
+                    EA = 1;
+                }
+                if (last_menu_index == PA_RUN_SET_MENU_ID)
+                {
+                    EA = 0;
+                    eeprom_write_bytes(0x10,motor_test,11);
+                    EA = 1;
+                }
             }
             break;        
         }

@@ -4,9 +4,9 @@
 
 typedef struct
 {
-    int16_t kp;
-    int16_t ki;
-    int16_t kd;
+    float kp;
+    float ki;
+    float kd;
     int16_t error;
     int16_t error_last;
     int16_t error_last_last;

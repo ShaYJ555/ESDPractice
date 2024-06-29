@@ -8,9 +8,9 @@ uint8_t low_temperature = 26;
 void pid_init(PID_t *pid_temperature)
 {
     pid_temperature->target = 25.0;
-    pid_temperature->kp = 1;
-    pid_temperature->ki = 0;
-    pid_temperature->kd = 0;
+    pid_temperature->kp = 1.2;
+    pid_temperature->ki = 0.2;
+    pid_temperature->kd = 0.1;
 }
 
 /* 增量式PID 控制输出增量 */
@@ -20,9 +20,9 @@ void pid_calculate(uint16_t temperature,PID_t *pid_temperature)
     pid_temperature->error = (int16_t)(temperature - pid_temperature->target * 16);
 
     pid_temperature->output += 
-    pid_temperature->kp * (pid_temperature->error - pid_temperature->error_last) + 
+    (int16_t)(pid_temperature->kp * (pid_temperature->error - pid_temperature->error_last) + 
     pid_temperature->ki * pid_temperature->error + 
-    pid_temperature->kd * (pid_temperature->error - 2 * pid_temperature->error_last + pid_temperature->error_last_last);
+    pid_temperature->kd * (pid_temperature->error - 2 * pid_temperature->error_last + pid_temperature->error_last_last));
     
     pid_temperature->error_last_last = pid_temperature->error_last;
     pid_temperature->error_last = pid_temperature->error;
