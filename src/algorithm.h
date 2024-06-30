@@ -16,7 +16,7 @@ typedef struct
 } PID_t;
 
 #define PID_LIMIT_MIN 0
-#define PID_LIMIT_MAX 99
+#define PID_LIMIT_MAX 100
 
 void temperature_to_pwm(uint16_t temperature, uint8_t *pwm);
 void pid_calculate(uint16_t temperature, PID_t *pid_temperature);

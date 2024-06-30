@@ -1,7 +1,7 @@
 #include "algorithm.h"
 
-uint8_t high_temperature = 30;
-uint8_t low_temperature  = 26;
+int8_t high_temperature = 30;
+int8_t low_temperature  = 26;
 
 void pid_init(PID_t *pid_temperature)
 {

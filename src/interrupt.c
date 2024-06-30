@@ -5,7 +5,7 @@
 
 sfr AUXR = 0x8E;
 
-uint8_t duty = 0;
+extern uint8_t duty;
 
 // 自动重装载
 void Timer0_Init(void) // 34.75微秒@11.0592MHz

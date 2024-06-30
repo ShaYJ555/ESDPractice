@@ -9,24 +9,36 @@
 #include "interrupt.h"
 #include "algorithm.h"
 
+// 用于控制区分长按短按时间
+#define KEY_LONG_TIME 5
+
+// 按键消抖延时
 static void Delay10ms(void);
 
 uint16_t temperature;
 uint8_t select_index    = 1;
 uint8_t pa_select_index = 1;
 PID_t pid_temperature   = {0};
-uint8_t motor_test[11]  = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 55};
+uint16_t high_temperature_cnt  = 0;         // 用于判断是否长短按
+uint16_t low_temperature_cnt  = 0;          // 用于判断是否长短按
+uint16_t motor_test_set_cnt = 0;            // 用于判断是否长短按
+uint16_t pid_temperature_target_cnt = 0;    // 用于判断是否长短按
+int8_t motor_test[11]  = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 55};
 
-extern uint8_t duty;
-extern uint8_t high_temperature;
-extern uint8_t low_temperature;
+uint8_t duty = 0;                           // 电机速度占空比
+extern int8_t high_temperature;             // 电机调速菜单温度上限
+extern int8_t low_temperature;              // 电机调速菜单温度下限
 
 /*
 EEPROM 参数保存table
-uint8_t high_temperature         0x00
-uint8_t low_temperature          0x01
-float   pid_temperature.target   0x02   2
-uint8_t motor_test               0x10   11
+---------------------------------------------
+|         变量名                 | 地址 |大小|
+|--------------------------------------------
+|uint8_t high_temperature       | 0x00 |  1 |
+|uint8_t low_temperature        | 0x01 |  1 |
+|float   pid_temperature.target | 0x02 |  2 |
+|uint8_t motor_test             | 0x10 | 11 |
+---------------------------------------------
 */
 
 void main()
@@ -93,7 +105,6 @@ void main()
                     //  退出，保存参数
                     if (last_menu_index == PA_CON_SET_B_MENU_ID) {
                         EA  = 0;
-                        LED = 0;
                         eeprom_write_bytes(0x01, &low_temperature, 1);
                         EA = 1;
                     }
@@ -109,7 +120,7 @@ void main()
                     }
                     if (last_menu_index == PA_RUN_SET_MENU_ID) {
                         EA = 0;
-                        eeprom_write_bytes(0x10, motor_test, 11);
+                        eeprom_write_bytes(0x10+pa_select_index, &motor_test[pa_select_index], 1);
                         EA = 1;
                     }
                 }
@@ -139,6 +150,15 @@ void main()
             temperature_to_pwm(temperature, &duty);
             display_clear();
             MOTOR_SPEED_PARAM_MENU();
+            EA = 1;
+        }
+        if (now_menu_index == PID_CONTROL_MENU_ID) {
+            EA = 0;
+            ds18b20_read_temperature(&temperature);
+            pid_calculate(temperature, &pid_temperature);
+            duty = pid_temperature.output;
+            display_clear();
+            PID_CONTROL_MENU();
             EA = 1;
         }
         if (now_menu_index == MOTOR_SELECT_MENU_ID) {
@@ -192,9 +212,17 @@ void main()
         if (now_menu_index == PA_RUN_SET_MENU_ID) {
             switch (key_value) {
                 case KEY_UP:
-                    motor_test[pa_select_index]++;
-                    if (motor_test[pa_select_index] > 99) {
-                        motor_test[pa_select_index] = 99;
+                    motor_test_set_cnt++;
+                    if (motor_test_set_cnt > KEY_LONG_TIME)
+                    {
+                        motor_test[pa_select_index] += 5;
+                    }
+                    else
+                    {
+                        motor_test[pa_select_index]++;
+                    }
+                    if (motor_test[pa_select_index] > 100) {
+                        motor_test[pa_select_index] = 100;
                     }
                     EA = 0;
                     display_clear();
@@ -202,7 +230,15 @@ void main()
                     EA = 1;
                     break;
                 case KEY_DOWN:
-                    motor_test[pa_select_index]--;
+                    motor_test_set_cnt++;
+                    if (motor_test_set_cnt > KEY_LONG_TIME)
+                    {
+                        motor_test[pa_select_index] -= 5;
+                    }
+                    else
+                    {
+                        motor_test[pa_select_index]--;
+                    }
                     if (motor_test[pa_select_index] < 0) {
                         motor_test[pa_select_index] = 0;
                     }
@@ -218,12 +254,23 @@ void main()
                     PA_RUN_SET_MENU();
                     EA = 1;
                     break;
+                default:
+                    motor_test_set_cnt = 0;
+                    break;
             }
         }
         if (now_menu_index == PA_CON_SET_B_MENU_ID) {
             switch (key_value) {
                 case KEY_UP:
-                    low_temperature++;
+                    low_temperature_cnt++;
+                    if(low_temperature_cnt > KEY_LONG_TIME)
+                    {
+                        low_temperature += 5;
+                    }
+                    else
+                    {
+                        low_temperature++;
+                    }
                     if (low_temperature > 99) {
                         low_temperature = 99;
                     }
@@ -233,7 +280,15 @@ void main()
                     EA = 1;
                     break;
                 case KEY_DOWN:
-                    low_temperature--;
+                    low_temperature_cnt++;
+                    if(low_temperature_cnt > KEY_LONG_TIME)
+                    {
+                        low_temperature -= 5;
+                    }
+                    else
+                    {
+                        low_temperature--;
+                    }
                     if (low_temperature < 0) {
                         low_temperature = 0;
                     }
@@ -249,12 +304,23 @@ void main()
                     PA_CON_SET_B_MENU();
                     EA = 1;
                     break;
+                default:
+                    low_temperature_cnt = 0;
+                    break;
             }
         }
         if (now_menu_index == PA_CON_SET_F_MENU_ID) {
             switch (key_value) {
                 case KEY_UP:
-                    high_temperature++;
+                    high_temperature_cnt++;
+                    if(high_temperature_cnt > KEY_LONG_TIME)
+                    {
+                        high_temperature += 5;
+                    }
+                    else
+                    {
+                        high_temperature++;
+                    }
                     if (high_temperature > 99) {
                         high_temperature = 99;
                     }
@@ -264,7 +330,15 @@ void main()
                     EA = 1;
                     break;
                 case KEY_DOWN:
-                    high_temperature--;
+                    high_temperature_cnt++;
+                    if(high_temperature_cnt > KEY_LONG_TIME)
+                    {
+                        high_temperature -= 5;
+                    }
+                    else
+                    {
+                        high_temperature--;
+                    }
                     if (high_temperature < 0) {
                         high_temperature = 0;
                     }
@@ -280,21 +354,23 @@ void main()
                     PA_CON_SET_F_MENU();
                     EA = 1;
                     break;
+                default:
+                    high_temperature_cnt = 0;
+                    break;
             }
-        }
-        if (now_menu_index == PID_CONTROL_MENU_ID) {
-            EA = 0;
-            ds18b20_read_temperature(&temperature);
-            pid_calculate(temperature, &pid_temperature);
-            duty = pid_temperature.output;
-            display_clear();
-            PID_CONTROL_MENU();
-            EA = 1;
         }
         if (now_menu_index == PA_PID_SET_MENU_ID) {
             switch (key_value) {
                 case KEY_UP:
-                    pid_temperature.target += 0.1;
+                    pid_temperature_target_cnt++;
+                    if (pid_temperature_target_cnt > KEY_LONG_TIME)
+                    {
+                        pid_temperature.target += 0.5;
+                    }
+                    else
+                    {
+                        pid_temperature.target += 0.1;
+                    }
                     if (pid_temperature.target > 99) {
                         pid_temperature.target = 99;
                     }
@@ -304,7 +380,15 @@ void main()
                     EA = 1;
                     break;
                 case KEY_DOWN:
-                    pid_temperature.target -= 0.1;
+                    pid_temperature_target_cnt++;
+                    if (pid_temperature_target_cnt > KEY_LONG_TIME)
+                    {
+                        pid_temperature.target -= 0.5;
+                    }
+                    else
+                    {
+                        pid_temperature.target -= 0.1;
+                    }
                     if (pid_temperature.target < 0) {
                         pid_temperature.target = 0;
                     }
@@ -319,6 +403,9 @@ void main()
                     display_clear();
                     PA_PID_SET_MENU();
                     EA = 1;
+                    break;
+                default:
+                    pid_temperature_target_cnt = 0;
                     break;
             }
         }

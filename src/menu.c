@@ -33,9 +33,9 @@ extern uint8_t duty;
 extern uint16_t temperature;
 extern uint8_t select_index;
 extern uint8_t pa_select_index;
-extern uint8_t motor_test[11];
-extern uint8_t high_temperature;
-extern uint8_t low_temperature;
+extern int8_t motor_test[11];
+extern int8_t high_temperature;
+extern int8_t low_temperature;
 extern PID_t pid_temperature;
 
 void menu_init(void)
@@ -77,9 +77,10 @@ void MOTOR_MENU(void)
 }
 void MOTOR_SELECT_MENU(void)
 {
-    uint8_t dat[2] = 0;
-    dat[0]         = motor_test[select_index] / 10;
-    dat[1]         = motor_test[select_index] % 10;
+    uint8_t dat[3] = {0};
+    dat[0]         = motor_test[select_index] / 100;
+    dat[1]         = motor_test[select_index] % 100 / 10;
+    dat[2]         = motor_test[select_index] % 10;
     display_digit(DIGIT_4, 0x21, 0); // r
     display_digit(DIGIT_5, 0x01, 0); // -
     if (select_index == 10) {
@@ -88,23 +89,37 @@ void MOTOR_SELECT_MENU(void)
     } else {
         display_digit(DIGIT_7, digit_array[select_index], 0);
     }
-
-    display_digit(DIGIT_2, digit_array[dat[0]], 0);
-    display_digit(DIGIT_3, digit_array[dat[1]], 0);
+    if (dat[0])
+    {
+        display_digit(DIGIT_1, digit_array[1], 0);
+    }
+    if (dat[1]||dat[0])
+    {
+        display_digit(DIGIT_2, digit_array[dat[1]], 0);
+    }
+    display_digit(DIGIT_3, digit_array[dat[2]], 0);
 }
 
 void MOTOR_RUN_MENU(void)
 {
-    uint8_t dat[2] = 0;
-    dat[0]         = motor_test[select_index] / 10;
-    dat[1]         = motor_test[select_index] % 10;
+    uint8_t dat[3] = 0;
+    dat[0]         = motor_test[select_index] / 100;
+    dat[1]         = motor_test[select_index] % 100 /10;
+    dat[2] = motor_test[select_index] % 10;
     display_digit(DIGIT_4, 0x21, 0); // r
     display_digit(DIGIT_5, 0x2C, 0); // u
     display_digit(DIGIT_6, 0x25, 0); // n
     display_digit(DIGIT_7, 0x01, 0); // -
 
-    display_digit(DIGIT_2, digit_array[dat[0]], 0);
-    display_digit(DIGIT_3, digit_array[dat[1]], 0);
+    if (dat[0])
+    {
+        display_digit(DIGIT_2, digit_array[1], 0);
+    }
+    if(dat[1]||dat[0])
+    {
+        display_digit(DIGIT_2, digit_array[dat[1]], 0);
+    }
+    display_digit(DIGIT_3, digit_array[dat[2]], 0);
     duty = motor_test[select_index];
 }
 
@@ -118,7 +133,7 @@ void MOTOR_SPEED_MENU(void)
 
 void MOTOR_SPEED_PARAM_MENU(void)
 {
-    uint8_t dat[6] = {0};
+    uint8_t dat[7] = {0};
     uint16_t temp  = 0;
     temp           = (uint16_t)((float)temperature * 6.25);
     dat[0]         = temp / 1000;
@@ -129,15 +144,18 @@ void MOTOR_SPEED_PARAM_MENU(void)
     display_digit(DIGIT_5, digit_array[dat[1]], 1);
     display_digit(DIGIT_6, digit_array[dat[2]], 0);
     display_digit(DIGIT_7, digit_array[dat[3]], 0);
-
-    dat[4] = duty / 10;
-    if (dat[4] > 10) {
-        LED = 0;
+    dat[4] = duty / 100;
+    dat[5] = duty % 100 / 10;
+    dat[6] = duty % 10;
+    if(dat[4])
+    {
+        display_digit(DIGIT_1, digit_array[1], 0);
     }
-
-    dat[5] = duty % 10;
-    display_digit(DIGIT_2, digit_array[dat[4]], 0);
-    display_digit(DIGIT_3, digit_array[dat[5]], 0);
+    if(dat[4] || dat[5])
+    {
+        display_digit(DIGIT_2, digit_array[dat[5]], 0);
+    }
+    display_digit(DIGIT_3, digit_array[dat[6]], 0);
 }
 
 void PARAM_SET_MENU(void)
@@ -171,21 +189,28 @@ void MOTOR_CON_SET_MENU(void)
 
 void PA_RUN_SELECT_MENU(void)
 {
-    uint8_t dat[2] = 0;
+    uint8_t dat[3] = 0;
     display_digit(DIGIT_4, 0xF1, 0); // P
     display_digit(DIGIT_5, 0x01, 0); // -
 
-    dat[0] = motor_test[pa_select_index] / 10;
-    dat[1] = motor_test[pa_select_index] % 10;
+    dat[0] = motor_test[pa_select_index] / 100;
+    dat[1] = motor_test[pa_select_index] % 100 /10;
+    dat[2] = motor_test[pa_select_index] % 10;
     if (pa_select_index == 10) {
         display_digit(DIGIT_6, digit_array[1], 0);
         display_digit(DIGIT_7, digit_array[0], 0);
     } else {
         display_digit(DIGIT_7, digit_array[pa_select_index], 0);
     }
-
-    display_digit(DIGIT_2, digit_array[dat[0]], 0);
-    display_digit(DIGIT_3, digit_array[dat[1]], 0);
+    if(dat[0])
+    {
+        display_digit(DIGIT_1, digit_array[1], 0);
+    }
+    if(dat[1]||dat[0])
+    {
+        display_digit(DIGIT_2, digit_array[dat[1]], 0);
+    }
+    display_digit(DIGIT_3, digit_array[dat[2]], 0);
 }
 
 void PA_CON_SELECT_B_MENU(void)
@@ -242,10 +267,11 @@ void PA_CON_SET_F_MENU(void)
 }
 void PA_RUN_SET_MENU(void)
 {
-    uint8_t dat[2] = 0;
-    dat[0]         = motor_test[pa_select_index] / 10;
-    dat[1]         = motor_test[pa_select_index] % 10;
+    uint8_t dat[3] = 0;
 
+    dat[0]         = motor_test[pa_select_index] / 100;
+    dat[1]         = motor_test[pa_select_index] % 100 / 10;
+    dat[2]         = motor_test[pa_select_index] % 10;
     display_digit(DIGIT_4, 0xF5, 0); // A
     display_digit(DIGIT_5, 0x01, 0); // -
 
@@ -255,8 +281,15 @@ void PA_RUN_SET_MENU(void)
     } else {
         display_digit(DIGIT_7, digit_array[pa_select_index], 0);
     }
-    display_digit(DIGIT_2, digit_array[dat[0]], 0);
-    display_digit(DIGIT_3, digit_array[dat[1]], 0);
+    if (dat[0])
+    {
+        display_digit(DIGIT_1, digit_array[1], 0);
+    }
+    if(dat[1]||dat[0])
+    {
+        display_digit(DIGIT_2, digit_array[dat[1]], 0);
+    }
+    display_digit(DIGIT_3, digit_array[dat[2]], 0);
 }
 
 void PID_MENU(void)
@@ -269,7 +302,7 @@ void PID_MENU(void)
 
 void PID_CONTROL_MENU(void)
 {
-    uint8_t dat[6] = {0};
+    uint8_t dat[7] = {0};
     uint16_t temp  = 0;
     temp           = (uint16_t)((float)temperature * 6.25);
     dat[0]         = temp / 1000;
@@ -280,10 +313,18 @@ void PID_CONTROL_MENU(void)
     display_digit(DIGIT_5, digit_array[dat[1]], 1);
     display_digit(DIGIT_6, digit_array[dat[2]], 0);
     display_digit(DIGIT_7, digit_array[dat[3]], 0);
-    dat[4] = duty / 10;
-    dat[5] = duty % 10;
-    display_digit(DIGIT_2, digit_array[dat[4]], 0);
-    display_digit(DIGIT_3, digit_array[dat[5]], 0);
+    dat[4] = duty / 100;
+    dat[5] = duty % 100 / 10;
+    dat[6] = duty % 10;
+    if(dat[4])
+    {
+        display_digit(DIGIT_1, digit_array[1], 0);
+    }
+    if(dat[4] || dat[5])
+    {
+        display_digit(DIGIT_2, digit_array[dat[5]], 0);
+    }
+    display_digit(DIGIT_3, digit_array[dat[6]], 0);
 }
 
 void PA_PID_MENU(void)
