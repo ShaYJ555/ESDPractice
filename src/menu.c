@@ -89,12 +89,10 @@ void MOTOR_SELECT_MENU(void)
     } else {
         display_digit(DIGIT_7, digit_array[select_index], 0);
     }
-    if (dat[0])
-    {
+    if (dat[0]) {
         display_digit(DIGIT_1, digit_array[1], 0);
     }
-    if (dat[1]||dat[0])
-    {
+    if (dat[1] || dat[0]) {
         display_digit(DIGIT_2, digit_array[dat[1]], 0);
     }
     display_digit(DIGIT_3, digit_array[dat[2]], 0);
@@ -104,19 +102,16 @@ void MOTOR_RUN_MENU(void)
 {
     uint8_t dat[3] = 0;
     dat[0]         = motor_test[select_index] / 100;
-    dat[1]         = motor_test[select_index] % 100 /10;
-    dat[2] = motor_test[select_index] % 10;
+    dat[1]         = motor_test[select_index] % 100 / 10;
+    dat[2]         = motor_test[select_index] % 10;
     display_digit(DIGIT_4, 0x21, 0); // r
     display_digit(DIGIT_5, 0x2C, 0); // u
     display_digit(DIGIT_6, 0x25, 0); // n
     display_digit(DIGIT_7, 0x01, 0); // -
-
-    if (dat[0])
-    {
+    if (dat[0]) {
         display_digit(DIGIT_2, digit_array[1], 0);
     }
-    if(dat[1]||dat[0])
-    {
+    if (dat[1] || dat[0]) {
         display_digit(DIGIT_2, digit_array[dat[1]], 0);
     }
     display_digit(DIGIT_3, digit_array[dat[2]], 0);
@@ -147,12 +142,10 @@ void MOTOR_SPEED_PARAM_MENU(void)
     dat[4] = duty / 100;
     dat[5] = duty % 100 / 10;
     dat[6] = duty % 10;
-    if(dat[4])
-    {
+    if (dat[4]) {
         display_digit(DIGIT_1, digit_array[1], 0);
     }
-    if(dat[4] || dat[5])
-    {
+    if (dat[4] || dat[5]) {
         display_digit(DIGIT_2, digit_array[dat[5]], 0);
     }
     display_digit(DIGIT_3, digit_array[dat[6]], 0);
@@ -192,9 +185,8 @@ void PA_RUN_SELECT_MENU(void)
     uint8_t dat[3] = 0;
     display_digit(DIGIT_4, 0xF1, 0); // P
     display_digit(DIGIT_5, 0x01, 0); // -
-
     dat[0] = motor_test[pa_select_index] / 100;
-    dat[1] = motor_test[pa_select_index] % 100 /10;
+    dat[1] = motor_test[pa_select_index] % 100 / 10;
     dat[2] = motor_test[pa_select_index] % 10;
     if (pa_select_index == 10) {
         display_digit(DIGIT_6, digit_array[1], 0);
@@ -202,12 +194,10 @@ void PA_RUN_SELECT_MENU(void)
     } else {
         display_digit(DIGIT_7, digit_array[pa_select_index], 0);
     }
-    if(dat[0])
-    {
+    if (dat[0]) {
         display_digit(DIGIT_1, digit_array[1], 0);
     }
-    if(dat[1]||dat[0])
-    {
+    if (dat[1] || dat[0]) {
         display_digit(DIGIT_2, digit_array[dat[1]], 0);
     }
     display_digit(DIGIT_3, digit_array[dat[2]], 0);
@@ -222,7 +212,6 @@ void PA_CON_SELECT_B_MENU(void)
     display_digit(DIGIT_5, 0xF5, 0); // A
     display_digit(DIGIT_6, 0x01, 0); // -
     display_digit(DIGIT_7, 0xAD, 0); // b
-
     display_digit(DIGIT_2, digit_array[dat[0]], 0);
     display_digit(DIGIT_3, digit_array[dat[1]], 0);
 }
@@ -236,7 +225,6 @@ void PA_CON_SELECT_F_MENU(void)
     display_digit(DIGIT_5, 0xF5, 0); // A
     display_digit(DIGIT_6, 0x01, 0); // -
     display_digit(DIGIT_7, 0xB1, 0); // f
-
     display_digit(DIGIT_2, digit_array[dat[0]], 0);
     display_digit(DIGIT_3, digit_array[dat[1]], 0);
 }
@@ -249,7 +237,6 @@ void PA_CON_SET_B_MENU(void)
     display_digit(DIGIT_4, 0xF5, 0); // A
     display_digit(DIGIT_5, 0x01, 0); // -
     display_digit(DIGIT_7, 0xAD, 0); // b
-
     display_digit(DIGIT_2, digit_array[dat[0]], 0);
     display_digit(DIGIT_3, digit_array[dat[1]], 0);
 }
@@ -261,32 +248,27 @@ void PA_CON_SET_F_MENU(void)
     display_digit(DIGIT_4, 0xF5, 0); // A
     display_digit(DIGIT_5, 0x01, 0); // -
     display_digit(DIGIT_7, 0xB1, 0); // f
-
     display_digit(DIGIT_2, digit_array[dat[0]], 0);
     display_digit(DIGIT_3, digit_array[dat[1]], 0);
 }
 void PA_RUN_SET_MENU(void)
 {
     uint8_t dat[3] = 0;
-
     dat[0]         = motor_test[pa_select_index] / 100;
     dat[1]         = motor_test[pa_select_index] % 100 / 10;
     dat[2]         = motor_test[pa_select_index] % 10;
     display_digit(DIGIT_4, 0xF5, 0); // A
     display_digit(DIGIT_5, 0x01, 0); // -
-
     if (pa_select_index == 10) {
         display_digit(DIGIT_6, digit_array[1], 0);
         display_digit(DIGIT_7, digit_array[0], 0);
     } else {
         display_digit(DIGIT_7, digit_array[pa_select_index], 0);
     }
-    if (dat[0])
-    {
+    if (dat[0]) {
         display_digit(DIGIT_1, digit_array[1], 0);
     }
-    if(dat[1]||dat[0])
-    {
+    if (dat[1] || dat[0]) {
         display_digit(DIGIT_2, digit_array[dat[1]], 0);
     }
     display_digit(DIGIT_3, digit_array[dat[2]], 0);
@@ -316,12 +298,10 @@ void PID_CONTROL_MENU(void)
     dat[4] = duty / 100;
     dat[5] = duty % 100 / 10;
     dat[6] = duty % 10;
-    if(dat[4])
-    {
+    if (dat[4]) {
         display_digit(DIGIT_1, digit_array[1], 0);
     }
-    if(dat[4] || dat[5])
-    {
+    if (dat[4] || dat[5]) {
         display_digit(DIGIT_2, digit_array[dat[5]], 0);
     }
     display_digit(DIGIT_3, digit_array[dat[6]], 0);
@@ -345,11 +325,10 @@ void PA_PID_SET_MENU(void)
     dat[0]         = temp / 100;
     dat[1]         = temp % 100 / 10;
     dat[2]         = temp % 10;
-    display_digit(DIGIT_4, 0xF5, 0); // A
-    display_digit(DIGIT_5, 0x01, 0); // -
-    display_digit(DIGIT_7, 0xF1, 0); // P
-    // temperature
-    display_digit(DIGIT_1, digit_array[dat[0]], 0); // A
-    display_digit(DIGIT_2, digit_array[dat[1]], 1); // -
-    display_digit(DIGIT_3, digit_array[dat[2]], 0); // P
+    display_digit(DIGIT_4, 0xF5, 0);                // A
+    display_digit(DIGIT_5, 0x01, 0);                // -
+    display_digit(DIGIT_7, 0xF1, 0);                // P
+    display_digit(DIGIT_1, digit_array[dat[0]], 0); 
+    display_digit(DIGIT_2, digit_array[dat[1]], 1); 
+    display_digit(DIGIT_3, digit_array[dat[2]], 0); 
 }
