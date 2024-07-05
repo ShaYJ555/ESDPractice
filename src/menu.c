@@ -161,14 +161,14 @@ void PARAM_SET_MENU(void)
 {
     display_digit(DIGIT_4, 0xF1, 0); // P
     display_digit(DIGIT_5, 0xF5, 0); // A
-    display_digit(DIGIT_7, 0x01, 0); // -
+    display_digit(DIGIT_6, 0x01, 0); // -
 }
 
 void MOTOR_RUN_SET_MENU(void)
 {
     display_digit(DIGIT_4, 0xF1, 0); // P
     display_digit(DIGIT_5, 0xF5, 0); // A
-    display_digit(DIGIT_7, 0x01, 0); // -
+    display_digit(DIGIT_6, 0x01, 0); // -
 
     display_digit(DIGIT_1, 0x21, 0); // r
     display_digit(DIGIT_2, 0x2C, 0); // u
@@ -179,7 +179,7 @@ void MOTOR_CON_SET_MENU(void)
 {
     display_digit(DIGIT_4, 0xF1, 0); // P
     display_digit(DIGIT_5, 0xF5, 0); // A
-    display_digit(DIGIT_7, 0x01, 0); // -
+    display_digit(DIGIT_6, 0x01, 0); // -
 
     display_digit(DIGIT_1, 0xB8, 0); // C
     display_digit(DIGIT_2, 0x2D, 0); // o
