@@ -23,19 +23,20 @@
     } while (0)
 
 // 按键消抖延时
-static void Delay10ms(void);
-
-uint16_t temperature;
-uint8_t select_index                = 1;
-uint8_t pa_select_index             = 1;
-PID_t pid_temperature               = {0};
-uint16_t high_temperature_cnt       = 0; // 用于判断是否长短按
-uint16_t low_temperature_cnt        = 0; // 用于判断是否长短按
-uint16_t motor_test_set_cnt         = 0; // 用于判断是否长短按
-uint16_t pid_temperature_target_cnt = 0; // 用于判断是否长短按
-int8_t motor_test[11]               = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 55};
+static void Delay8ms(void);
 
 uint8_t duty = 0;               // 电机速度占空比
+uint16_t temperature;
+uint16_t key_cnt        = 0; // 用于判断是否长短按
+uint8_t select_index    = 1;
+uint8_t pa_select_index = 1;
+uint8_t password_index   = 0;
+
+int8_t motor_test[11]    = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 55};
+int8_t password[4]       = {6, 6, 6, 6};
+int8_t input_password[4] = {0, 0, 0, 0};
+PID_t pid_temperature    = {0};
+
 extern int8_t high_temperature; // 电机调速菜单温度上限
 extern int8_t low_temperature;  // 电机调速菜单温度下限
 
@@ -46,7 +47,7 @@ EEPROM 参数保存table
 |--------------------------------------------
 |uint8_t high_temperature       | 0x00 |  1 |
 |uint8_t low_temperature        | 0x01 |  1 |
-|float   pid_temperature.target | 0x02 |  2 |
+|float   pid_temperature.target | 0x02 |  4 |
 |uint8_t motor_test             | 0x10 | 11 |
 ---------------------------------------------
 */
@@ -109,8 +110,16 @@ void main()
                     if (now_menu_index == PA_CON_SET_F_MENU_ID) {
                         temp_value = high_temperature;
                     }
-                    if (now_menu_index == PA_PID_SET_MENU_ID) {
+                    if (now_menu_index == PA_PID_SET_TARGET_MENU_ID) {
                         float_temp_value = pid_temperature.target;
+
+                    }
+                    if (now_menu_index == PA_PID_PASSWORD_MENU_ID) // 清除密码
+                    {
+                        input_password[0] = 0;
+                        input_password[1] = 0;
+                        input_password[2] = 0;
+                        input_password[3] = 0;
                     }
                     //  退出，保存参数
                     if (last_menu_index == PA_CON_SET_B_MENU_ID) {
@@ -123,7 +132,7 @@ void main()
                         eeprom_write_bytes(0x00, &high_temperature, 1);
                         ENABLE_GLOBAL_INTERRUPT();
                     }
-                    if (last_menu_index == PA_PID_SET_MENU_ID) {
+                    if (last_menu_index == PA_PID_SET_TARGET_MENU_ID) {
                         DISABLE_GLOBAL_INTERRUPT();
                         eeprom_write_bytes(0x02, (uint8_t *)&pid_temperature.target, sizeof(float));
                         ENABLE_GLOBAL_INTERRUPT();
@@ -133,6 +142,14 @@ void main()
                         eeprom_write_bytes(0x10 + pa_select_index, &motor_test[pa_select_index], 1);
                         ENABLE_GLOBAL_INTERRUPT();
                     }
+                    // 判断密码是否正确
+                    if (last_menu_index == PA_PID_PASSWORD_MENU_ID) {
+                        if (password[0] == input_password[0] && password[1] == input_password[1] && password[2] == input_password[2] && password[3] == input_password[3]) {
+                            now_menu_index = PA_PID_SET_TARGET_MENU_ID;
+                        } else {
+                            now_menu_index = PA_PID_PASSWORD_ERROR_MENU_ID;
+                        }
+                    }
                 }
                 break;
         }
@@ -140,10 +157,14 @@ void main()
             DISABLE_GLOBAL_INTERRUPT();
             display_clear();
             menu_list[now_menu_index].current_menu();
+            if (now_menu_index == PA_PID_PASSWORD_MENU_ID) // 第一位要闪烁
+            {
+                display_blink(DIGIT_0);
+            }
             last_menu_index = now_menu_index;
             ENABLE_GLOBAL_INTERRUPT();
         }
-        Delay10ms();
+        Delay8ms();
         if ((now_menu_index != MOTOR_SPEED_PARAM_MENU_ID) && (now_menu_index != MOTOR_RUN_MENU_ID)) {
             duty = 0;
         }
@@ -222,9 +243,9 @@ void main()
         if (now_menu_index == PA_RUN_SET_MENU_ID) {
             switch (key_value) {
                 case KEY_UP:
-                    motor_test_set_cnt++;
-                    if (motor_test_set_cnt > KEY_LONG_TIME) {
-                        motor_test[pa_select_index] += 5;
+                    key_cnt++;
+                    if (key_cnt > KEY_LONG_TIME) {
+                        motor_test[pa_select_index] += key_cnt;
                     } else {
                         motor_test[pa_select_index]++;
                     }
@@ -237,9 +258,9 @@ void main()
                     ENABLE_GLOBAL_INTERRUPT();
                     break;
                 case KEY_DOWN:
-                    motor_test_set_cnt++;
-                    if (motor_test_set_cnt > KEY_LONG_TIME) {
-                        motor_test[pa_select_index] -= 5;
+                    key_cnt++;
+                    if (key_cnt > KEY_LONG_TIME) {
+                        motor_test[pa_select_index] -= key_cnt;
                     } else {
                         motor_test[pa_select_index]--;
                     }
@@ -259,16 +280,16 @@ void main()
                     ENABLE_GLOBAL_INTERRUPT();
                     break;
                 default:
-                    motor_test_set_cnt = 0;
+                    key_cnt = 0;
                     break;
             }
         }
         if (now_menu_index == PA_CON_SET_B_MENU_ID) {
             switch (key_value) {
                 case KEY_UP:
-                    low_temperature_cnt++;
-                    if (low_temperature_cnt > KEY_LONG_TIME) {
-                        low_temperature += 5;
+                    key_cnt++;
+                    if (key_cnt > KEY_LONG_TIME) {
+                        low_temperature += key_cnt;
                     } else {
                         low_temperature++;
                     }
@@ -281,9 +302,9 @@ void main()
                     ENABLE_GLOBAL_INTERRUPT();
                     break;
                 case KEY_DOWN:
-                    low_temperature_cnt++;
-                    if (low_temperature_cnt > KEY_LONG_TIME) {
-                        low_temperature -= 5;
+                    key_cnt++;
+                    if (key_cnt > KEY_LONG_TIME) {
+                        low_temperature -= key_cnt;
                     } else {
                         low_temperature--;
                     }
@@ -303,16 +324,16 @@ void main()
                     ENABLE_GLOBAL_INTERRUPT();
                     break;
                 default:
-                    low_temperature_cnt = 0;
+                    key_cnt = 0;
                     break;
             }
         }
         if (now_menu_index == PA_CON_SET_F_MENU_ID) {
             switch (key_value) {
                 case KEY_UP:
-                    high_temperature_cnt++;
-                    if (high_temperature_cnt > KEY_LONG_TIME) {
-                        high_temperature += 5;
+                    key_cnt++;
+                    if (key_cnt > KEY_LONG_TIME) {
+                        high_temperature += key_cnt;
                     } else {
                         high_temperature++;
                     }
@@ -325,9 +346,9 @@ void main()
                     ENABLE_GLOBAL_INTERRUPT();
                     break;
                 case KEY_DOWN:
-                    high_temperature_cnt++;
-                    if (high_temperature_cnt > KEY_LONG_TIME) {
-                        high_temperature -= 5;
+                    key_cnt++;
+                    if (key_cnt > KEY_LONG_TIME) {
+                        high_temperature -= key_cnt;
                     } else {
                         high_temperature--;
                     }
@@ -347,16 +368,16 @@ void main()
                     ENABLE_GLOBAL_INTERRUPT();
                     break;
                 default:
-                    high_temperature_cnt = 0;
+                    key_cnt = 0;
                     break;
             }
         }
-        if (now_menu_index == PA_PID_SET_MENU_ID) {
+        if (now_menu_index == PA_PID_SET_TARGET_MENU_ID) {
             switch (key_value) {
                 case KEY_UP:
-                    pid_temperature_target_cnt++;
-                    if (pid_temperature_target_cnt > KEY_LONG_TIME) {
-                        pid_temperature.target += 0.5;
+                    key_cnt++;
+                    if (key_cnt > KEY_LONG_TIME) {
+                        pid_temperature.target += key_cnt * 0.1;
                     } else {
                         pid_temperature.target += 0.1;
                     }
@@ -365,13 +386,13 @@ void main()
                     }
                     DISABLE_GLOBAL_INTERRUPT();
                     display_clear();
-                    PA_PID_SET_MENU();
+                    PA_PID_SET_TARGET_MENU();
                     ENABLE_GLOBAL_INTERRUPT();
                     break;
                 case KEY_DOWN:
-                    pid_temperature_target_cnt++;
-                    if (pid_temperature_target_cnt > KEY_LONG_TIME) {
-                        pid_temperature.target -= 0.5;
+                    key_cnt++;
+                    if (key_cnt > KEY_LONG_TIME) {
+                        pid_temperature.target -= key_cnt * 0.1;
                     } else {
                         pid_temperature.target -= 0.1;
                     }
@@ -380,31 +401,69 @@ void main()
                     }
                     DISABLE_GLOBAL_INTERRUPT();
                     display_clear();
-                    PA_PID_SET_MENU();
+                    PA_PID_SET_TARGET_MENU();
                     ENABLE_GLOBAL_INTERRUPT();
                     break;
                 case KEY_BACK:
                     pid_temperature.target = float_temp_value;
                     DISABLE_GLOBAL_INTERRUPT();
                     display_clear();
-                    PA_PID_SET_MENU();
+                    PA_PID_SET_TARGET_MENU();
                     ENABLE_GLOBAL_INTERRUPT();
                     break;
                 default:
-                    pid_temperature_target_cnt = 0;
+                    key_cnt = 0;
+                    break;
+            }
+        }
+        if (now_menu_index == PA_PID_PASSWORD_MENU_ID) {
+            switch (key_value) {
+                case KEY_UP:
+                    input_password[password_index]++;
+                    if (input_password[password_index] > 9) {
+                        input_password[password_index] = 9;
+                    }
+                    DISABLE_GLOBAL_INTERRUPT();
+                    display_clear();
+                    PA_PID_PASSWORD_MENU();
+                    display_blink(DIGIT_0 << password_index);
+                    ENABLE_GLOBAL_INTERRUPT();
+                    break;
+                case KEY_DOWN:
+                    input_password[password_index]--;
+                    if (input_password[password_index] < 1) {
+                        input_password[password_index] = 0;
+                    }
+                    DISABLE_GLOBAL_INTERRUPT();
+                    display_clear();
+                    PA_PID_PASSWORD_MENU();
+                    display_blink(DIGIT_0 << password_index);
+                    ENABLE_GLOBAL_INTERRUPT();
+                    break;
+                case KEY_BACK:
+                    password_index++;
+                    if (password_index > 3) {
+                        password_index = 0;
+                    }
+                    DISABLE_GLOBAL_INTERRUPT();
+                    display_blink(DIGIT_0 << password_index);
+                    ENABLE_GLOBAL_INTERRUPT();
+                    break;
+                default:
                     break;
             }
         }
     }
 }
 
-static void Delay10ms(void) //@11.0592MHz
+static void Delay8ms(void)		//@11.0592MHz
 {
-    unsigned char i, j;
+	unsigned char i, j;
 
-    i = 18;
-    j = 235;
-    do {
-        while (--j);
-    } while (--i);
+	i = 15;
+	j = 84;
+	do
+	{
+		while (--j);
+	} while (--i);
 }

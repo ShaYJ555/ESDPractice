@@ -44,7 +44,7 @@ void display_clear(void)
 
 void display_blink(uint8_t digits)
 {
-    hd7279a_write_cmd(BLINKCTL, digits);
+    hd7279a_write_cmd(BLINKCTL, ~digits);
 }
 
 void display_left_loop(void)
