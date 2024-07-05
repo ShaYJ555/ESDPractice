@@ -7,12 +7,12 @@ typedef struct
     float kp;
     float ki;
     float kd;
-    int16_t error;
-    int16_t error_last;
-    int16_t error_last_last;
-    int16_t error_sum;
+    int32_t error;
+    int32_t error_last;
+    int32_t error_last_last;
+    int32_t error_sum;
     float target;
-    int16_t output;
+    int32_t output;
 } PID_t;
 
 #define PID_LIMIT_MIN 0

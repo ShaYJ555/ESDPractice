@@ -33,7 +33,7 @@ uint8_t pa_select_index = 1;
 uint8_t password_index   = 0;
 
 int8_t motor_test[11]    = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 55};
-int8_t password[4]       = {6, 6, 6, 6};
+int8_t password[4]       = {1, 2, 3, 4};
 int8_t input_password[4] = {0, 0, 0, 0};
 PID_t pid_temperature    = {0};
 
@@ -167,6 +167,15 @@ void main()
         Delay8ms();
         if ((now_menu_index != MOTOR_SPEED_PARAM_MENU_ID) && (now_menu_index != MOTOR_RUN_MENU_ID)) {
             duty = 0;
+        }
+        // 如果值设置的不对，直接报警
+        if(low_temperature > high_temperature)
+        {
+            LED = 0;
+        }
+        else
+        {
+            LED = 1;
         }
         if (now_menu_index == TEMP_PARAM_MENU_ID) {
             DISABLE_GLOBAL_INTERRUPT();
