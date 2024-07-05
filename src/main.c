@@ -27,15 +27,15 @@ static void Delay8ms(void);
 
 uint8_t duty = 0;               // 电机速度占空比
 uint16_t temperature;
-uint16_t key_cnt        = 0; // 用于判断是否长短按
+uint8_t key_cnt        = 0; // 用于判断是否长短按
 uint8_t select_index    = 1;
 uint8_t pa_select_index = 1;
 uint8_t password_index   = 0;
 
-int8_t motor_test[11]    = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 55};
-int8_t password[4]       = {1, 2, 3, 4};
+uint8_t motor_test[11]    = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 55};
+int8_t password[4]       = {0, 0, 0, 0};
 int8_t input_password[4] = {0, 0, 0, 0};
-PID_t pid_temperature    = {0};
+idata PID_t pid_temperature    = {0};
 
 extern int8_t high_temperature; // 电机调速菜单温度上限
 extern int8_t low_temperature;  // 电机调速菜单温度下限
@@ -112,7 +112,6 @@ void main()
                     }
                     if (now_menu_index == PA_PID_SET_TARGET_MENU_ID) {
                         float_temp_value = pid_temperature.target;
-
                     }
                     if (now_menu_index == PA_PID_PASSWORD_MENU_ID) // 清除密码
                     {
@@ -176,6 +175,11 @@ void main()
         else
         {
             LED = 1;
+        }
+        // 防止过度长按
+        if(key_cnt > 100)
+        {
+            key_cnt = 0;
         }
         if (now_menu_index == TEMP_PARAM_MENU_ID) {
             DISABLE_GLOBAL_INTERRUPT();
@@ -273,7 +277,10 @@ void main()
                     } else {
                         motor_test[pa_select_index]--;
                     }
-                    if (motor_test[pa_select_index] < 0) {
+                    if (motor_test[pa_select_index] < 1) {
+                        motor_test[pa_select_index] = 0;
+                    }
+                    if (motor_test[pa_select_index] > 100) {
                         motor_test[pa_select_index] = 0;
                     }
                     DISABLE_GLOBAL_INTERRUPT();

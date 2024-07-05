@@ -86,8 +86,6 @@ void PA_PID_PASSWORD_MENU(void);
 #define PA_CON_SET_F_MENU_ID 19
 // PID target 参数选择菜单编号
 #define PA_PID_SET_TARGET_MENU_ID 20
-// PID target 参数选择菜单编号
-#define PA_PID_SET_TARGET_MENU_ID 20
 // PID 密码设置错误菜单
 #define PA_PID_PASSWORD_ERROR_MENU_ID 21
 

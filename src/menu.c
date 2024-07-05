@@ -2,7 +2,7 @@
 #include "bsp_display.h"
 #include "algorithm.h"
 
-extern int8_t input_password[4];
+
 
 code Menu_t menu_list[22] = {
     /* Ò»¼¶²Ëµ¥ */
@@ -38,10 +38,11 @@ extern uint8_t duty;
 extern uint16_t temperature;
 extern uint8_t select_index;
 extern uint8_t pa_select_index;
-extern int8_t motor_test[11];
+extern uint8_t motor_test[11];
+extern int8_t input_password[4];
 extern int8_t high_temperature;
 extern int8_t low_temperature;
-extern PID_t pid_temperature;
+extern idata PID_t pid_temperature;
 
 void menu_init(void)
 {
