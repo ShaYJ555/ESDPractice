@@ -6,9 +6,9 @@ int8_t low_temperature  = 26;
 void pid_init(PID_t *pid_temperature)
 {
     pid_temperature->target = 25.0;
-    pid_temperature->kp     = 35.5;
+    pid_temperature->kp     = 32.5;
     pid_temperature->ki     = 5.0;
-    pid_temperature->kd     = 10.5;
+    pid_temperature->kd     = 3.5;
 }
 
 /* 增量式PID 控制输出增量 */

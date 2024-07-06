@@ -115,7 +115,7 @@ void MOTOR_RUN_MENU(void)
     display_digit(DIGIT_6, 0x25, 0); // n
     display_digit(DIGIT_7, 0x01, 0); // -
     if (dat[0]) {
-        display_digit(DIGIT_2, digit_array[1], 0);
+        display_digit(DIGIT_1, digit_array[1], 0);
     }
     if (dat[1] || dat[0]) {
         display_digit(DIGIT_2, digit_array[dat[1]], 0);

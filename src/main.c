@@ -143,7 +143,10 @@ void main()
                     }
                     // ≈–∂œ√‹¬Î «∑Ò’˝»∑
                     if (last_menu_index == PA_PID_PASSWORD_MENU_ID) {
-                        if (password[0] == input_password[0] && password[1] == input_password[1] && password[2] == input_password[2] && password[3] == input_password[3]) {
+                        if (password[0] == input_password[0] && 
+                            password[1] == input_password[1] && 
+                            password[2] == input_password[2] && 
+                            password[3] == input_password[3]) {
                             now_menu_index = PA_PID_SET_TARGET_MENU_ID;
                         } else {
                             now_menu_index = PA_PID_PASSWORD_ERROR_MENU_ID;
