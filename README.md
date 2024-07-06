@@ -12,6 +12,8 @@
 - [x] **参数设置**
 - [x] **PID调节温度---（参数需自行调节）**
 
+# 软件架构图
+![software_ARCH](./picture/software_ARCH.png)
 # 流程图
 
 ![flow_chart](./picture/flow_chart.png)
