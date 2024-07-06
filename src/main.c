@@ -66,10 +66,10 @@ void main()
     pid_init(&pid_temperature);
 
     // // 第一次烧录，先给EEPROM编程
-    // eeprom_read_bytes(0x01,&low_temperature,1);
-    // eeprom_read_bytes(0x00,&high_temperature,1);
-    // eeprom_read_bytes(0x02,&pid_temperature.target,sizeof(float));
-    // eeprom_read_bytes(0x10,motor_test,11);
+    // eeprom_write_bytes(0x01,&low_temperature,1);
+    // eeprom_write_bytes(0x00,&high_temperature,1);
+    // eeprom_write_bytes(0x02,(uint8_t *)&pid_temperature.target,sizeof(float));
+    // eeprom_write_bytes(0x10,motor_test,11);
     // 参数读取
     eeprom_read_bytes(0x01, &low_temperature, 1);
     eeprom_read_bytes(0x00, &high_temperature, 1);
